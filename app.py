@@ -1248,8 +1248,9 @@ def seed_demo_data():
     return redirect(url_for("warden_dashboard"))
 
 if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 5000))
     print("=" * 65)
     print("🚀 Starting Smart Hostel Management Application...")
-    print("🌐 Access the application at: http://127.0.0.1:5000")
+    print(f"🌐 Access the application at: http://127.0.0.1:{port}")
     print("=" * 65)
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(host="0.0.0.0", port=port, debug=False)
