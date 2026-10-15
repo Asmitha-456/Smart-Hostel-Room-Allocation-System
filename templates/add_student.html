@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0;">Add New Student (Warden)</h1>
+        <a href="{{ url_for('students') }}" style="color: #64748b; text-decoration: none; font-size: 14px;">&larr; Back to Students</a>
+    </div>
+
+    <form method="post" action="{{ url_for('add_student') }}">
+        <label for="name">Full Name *</label>
+        <input type="text" id="name" name="name" placeholder="e.g. Arun Kumar" required autofocus>
+
+        <label for="roll_no">Roll Number / Registration ID *</label>
+        <input type="text" id="roll_no" name="roll_no" placeholder="e.g. 24CS015" required>
+
+        <label for="gender">Hostel Block (Gender) *</label>
+        <select id="gender" name="gender" required>
+            <option value="">-- Select Block --</option>
+            <option value="Boys">Boys (Male Hostel)</option>
+            <option value="Girls">Girls (Female Hostel)</option>
+        </select>
+
+        <label for="department">Department *</label>
+        <input type="text" id="department" name="department" placeholder="e.g. Computer Science & Engineering" required>
+
+        <label for="year">Year of Study *</label>
+        <select id="year" name="year" required>
+            <option value="">-- Select Year --</option>
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+        </select>
+
+        <label for="preference">Room Sharing Preference *</label>
+        <select id="preference" name="preference" required>
+            <option value="Double Sharing">Double Sharing (2 Beds)</option>
+            <option value="Single Room">Single Room (1 Bed)</option>
+            <option value="Triple Sharing">Triple Sharing (3 Beds)</option>
+            <option value="4-Sharing">4-Sharing (4 Beds)</option>
+        </select>
+
+        <label for="password">Login Password (Optional)</label>
+        <input type="password" id="password" name="password" placeholder="Leave blank to default to Roll Number">
+        <small style="color: #64748b; font-size: 12px; display: block; margin-top: -3px; margin-bottom: 12px;">If left blank, the student's initial password will be their Roll Number.</small>
+
+        <div style="margin-top: 25px; display: flex; gap: 10px;">
+            <button class="button" type="submit">💾 Save Student</button>
+            <a href="{{ url_for('students') }}" class="button button-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

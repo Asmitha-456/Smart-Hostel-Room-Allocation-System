@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Students Registry (Warden View)</h1>
+        <p style="color: #64748b; margin: 4px 0 0;">Manage enrolled students, room preferences, and allocations</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <a class="button" href="{{ url_for('add_student') }}">+ Add Student</a>
+    </div>
+</div>
+
+<div class="table-toolbar">
+    <input type="text" id="studentSearch" placeholder="🔍 Search by name, roll no, department, room, preference..." class="search-input">
+</div>
+
+<table id="studentsTable">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Roll Number</th>
+            <th>Gender</th>
+            <th>Department</th>
+            <th>Year</th>
+            <th>Room Preference</th>
+            <th>Assigned Room</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in students %}
+        <tr>
+            <td><strong>{{ s.name }}</strong></td>
+            <td><code>{{ s.roll_no }}</code></td>
+            <td>
+                {% if s.gender == 'Boys' %}
+                    <span class="badge badge-boys">Boys</span>
+                {% else %}
+                    <span class="badge badge-girls">Girls</span>
+                {% endif %}
+            </td>
+            <td>{{ s.department or 'N/A' }}</td>
+            <td>Year {{ s.year or '-' }}</td>
+            <td>
+                <span class="badge badge-preference">{{ s.preference or 'Double Sharing' }}</span>
+            </td>
+            <td>
+                {% if s.room_no and s.room_no != 'None' and s.room_no != 'Not Allocated' %}
+                    <span class="badge badge-room">Room {{ s.room_no }}</span>
+                {% else %}
+                    <span class="badge badge-unassigned">Not Allocated</span>
+                {% endif %}
+            </td>
+            <td>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    {% if s.room_no and s.room_no != 'None' and s.room_no != 'Not Allocated' %}
+                        <form method="post" action="{{ url_for('deallocate_student', student_id=s._id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to deallocate this student from Room {{ s.room_no }}?');">
+                            <button type="submit" class="btn-action btn-vacate" title="Deallocate from room">Vacate</button>
+                        </form>
+                    {% else %}
+                        <a href="{{ url_for('allocate') }}" class="btn-action btn-allocate" title="Go to allocation">Allocate</a>
+                    {% endif %}
+
+                    <form method="post" action="{{ url_for('delete_student', student_id=s._id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this student record?');">
+                        <button type="submit" class="btn-action btn-delete" title="Delete student">&times;</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8" class="empty">
+                No students enrolled yet. Students can register through the registration page or you can add them manually.
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        setupTableSearch("studentSearch", "studentsTable");
+    });
+</script>
+{% endblock %}

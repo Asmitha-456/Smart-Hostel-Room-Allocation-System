@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">🔐</span>
+            <h2>Sign In to Smart Hostel</h2>
+            <p>Select your portal role to access your account</p>
+        </div>
+
+        <!-- Role Selector Tabs -->
+        <div class="auth-tabs">
+            <button type="button" class="auth-tab {% if active_role != 'warden' %}active{% endif %}" onclick="switchRole('student')">
+                👨‍🎓 Student Portal
+            </button>
+            <button type="button" class="auth-tab {% if active_role == 'warden' %}active{% endif %}" onclick="switchRole('warden')">
+                🛡️ Warden Portal
+            </button>
+        </div>
+
+        <form method="post" action="{{ url_for('login') }}" class="auth-form" id="loginForm">
+            <input type="hidden" name="role" id="roleInput" value="{{ active_role or 'student' }}">
+
+            <div id="studentHelpText" class="role-hint" style="{% if active_role == 'warden' %}display: none;{% endif %}">
+                💡 <strong>Student:</strong> Enter your <strong>Roll Number</strong> (e.g. <code>24104015</code>) and password.
+            </div>
+
+            <div id="wardenHelpText" class="role-hint role-hint-warden" style="{% if active_role != 'warden' %}display: none;{% endif %}">
+                🛡️ <strong>Warden Admin:</strong> Default credentials &rarr; Username: <code>warden</code> | Password: <code>warden123</code>
+            </div>
+
+            <div class="form-group">
+                <label id="usernameLabel" for="username">
+                    {% if active_role == 'warden' %}Warden Username{% else %}Roll Number / Username{% endif %}
+                </label>
+                <input type="text" id="username" name="username" placeholder="{% if active_role == 'warden' %}e.g. warden{% else %}e.g. 24104015 or 24CS001{% endif %}" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="button button-block" id="submitBtn">
+                {% if active_role == 'warden' %}Sign In as Warden &rarr;{% else %}Sign In as Student &rarr;{% endif %}
+            </button>
+        </form>
+
+        <div class="auth-footer" id="studentRegisterNotice" style="{% if active_role == 'warden' %}display: none;{% endif %}">
+            <p>New Student? <a href="{{ url_for('register') }}">Create an Account &amp; Register &rarr;</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchRole(role) {
+    document.getElementById('roleInput').value = role;
+    const tabs = document.querySelectorAll('.auth-tab');
+    if (role === 'student') {
+        tabs[0].classList.add('active');
+        tabs[1].classList.remove('active');
+        document.getElementById('studentHelpText').style.display = 'block';
+        document.getElementById('wardenHelpText').style.display = 'none';
+        document.getElementById('usernameLabel').textContent = 'Roll Number / Username';
+        document.getElementById('username').placeholder = 'e.g. 24104015 or 24CS001';
+        document.getElementById('submitBtn').textContent = 'Sign In as Student →';
+        document.getElementById('studentRegisterNotice').style.display = 'block';
+    } else {
+        tabs[1].classList.add('active');
+        tabs[0].classList.remove('active');
+        document.getElementById('studentHelpText').style.display = 'none';
+        document.getElementById('wardenHelpText').style.display = 'block';
+        document.getElementById('usernameLabel').textContent = 'Warden Username';
+        document.getElementById('username').placeholder = 'e.g. warden';
+        document.getElementById('submitBtn').textContent = 'Sign In as Warden →';
+        document.getElementById('studentRegisterNotice').style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

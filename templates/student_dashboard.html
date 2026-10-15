@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Welcome, {{ student.name }}! 👨‍🎓</h1>
+        <p style="color: #64748b; margin: 4px 0 0;">
+            Roll Number: <strong>{{ student.roll_no }}</strong> | {{ student.department }} (Year {{ student.year }})
+        </p>
+    </div>
+    <div>
+        <a class="button button-warning" href="{{ url_for('student_add_complaint') }}">
+            🚨 Report a Complaint
+        </a>
+    </div>
+</div>
+
+<!-- Student Room Allocation Status Banner -->
+<div class="student-profile-grid">
+    {% if student.room_no and student.room_no != 'None' and student.room_no != 'Not Allocated' %}
+    <div class="student-card student-card-allocated">
+    {% else %}
+    <div class="student-card student-card-pending">
+    {% endif %}
+        <div class="student-card-header">
+            <span class="student-status-icon">
+                {% if student.room_no and student.room_no != 'None' and student.room_no != 'Not Allocated' %}🏠{% else %}⏳{% endif %}
+            </span>
+            <div>
+                <h3>Room Allocation Status</h3>
+                {% if student.room_no and student.room_no != 'None' and student.room_no != 'Not Allocated' %}
+                    <span class="badge badge-success" style="font-size: 13px;">Allocated &amp; Active</span>
+                {% else %}
+                    <span class="badge badge-warning" style="font-size: 13px;">Pending Allocation by Warden</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="student-card-body">
+            {% if student.room_no and student.room_no != 'None' and student.room_no != 'Not Allocated' %}
+                <div class="room-highlight">
+                    <div class="room-number">Room {{ student.room_no }}</div>
+                    <div class="room-type-tag">{{ room.room_type if room else 'Hostel Room' }}</div>
+                </div>
+
+                <div class="room-details-list">
+                    <div><strong>Hostel Block:</strong> {{ student.gender }} Hostel</div>
+                    <div><strong>Bed Capacity:</strong> {{ room.capacity if room else 'N/A' }} Beds</div>
+                    <div>
+                        <strong>Roommates:</strong>
+                        {% if roommates and roommates|length > 0 %}
+                            <div class="occupant-chips" style="margin-top: 6px;">
+                                {% for rm in roommates %}
+                                    <span class="occupant-chip">👤 {{ rm.name }} ({{ rm.roll_no }})</span>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <span style="color: #64748b; font-size: 13px;">No other roommates currently assigned.</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="pending-notice">
+                    <p style="margin: 0 0 10px; font-size: 15px; color: #92400e;">
+                        Your registration has been received! The Warden will assign an available room matching your preference and gender shortly.
+                    </p>
+                    <div style="font-size: 14px; color: #475467;">
+                        <strong>Your Room Sharing Preference:</strong>
+                        <span class="badge badge-room">{{ student.preference or 'Double Sharing' }}</span>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Student Profile Details Box -->
+    <div class="student-card">
+        <h3>My Registration Details</h3>
+        <table class="profile-mini-table">
+            <tr>
+                <td><strong>Full Name:</strong></td>
+                <td>{{ student.name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Roll Number:</strong></td>
+                <td><code>{{ student.roll_no }}</code></td>
+            </tr>
+            <tr>
+                <td><strong>Hostel Block:</strong></td>
+                <td>{{ student.gender }} Hostel</td>
+            </tr>
+            <tr>
+                <td><strong>Department:</strong></td>
+                <td>{{ student.department }}</td>
+            </tr>
+            <tr>
+                <td><strong>Year of Study:</strong></td>
+                <td>Year {{ student.year }}</td>
+            </tr>
+            <tr>
+                <td><strong>Preferred Room:</strong></td>
+                <td>{{ student.preference or 'Double Sharing' }}</td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- My Complaints Section -->
+<div class="student-complaints-section" style="margin-top: 35px;">
+    <div class="page-head">
+        <div>
+            <h2>My Submitted Complaints ({{ complaints|length }})</h2>
+            <p style="color: #64748b; margin: 4px 0 0;">Check the live progress of maintenance requests filed by you</p>
+        </div>
+        <a class="button button-secondary" href="{{ url_for('student_add_complaint') }}">+ New Complaint</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Room</th>
+                <th>Issue Description</th>
+                <th>Date Filed</th>
+                <th>Current Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in complaints %}
+            <tr>
+                <td><span class="badge badge-category">{{ c.category }}</span></td>
+                <td>
+                    {% if c.room_no and c.room_no != 'Not Allocated' %}
+                        <span class="badge badge-room">Room {{ c.room_no }}</span>
+                    {% else %}
+                        <span style="color: #94a3b8; font-size: 13px;">Not Assigned</span>
+                    {% endif %}
+                </td>
+                <td style="max-width: 320px; word-break: break-word;">{{ c.description }}</td>
+                <td>
+                    {% if c.created_at and c.created_at.strftime is defined %}
+                        {{ c.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                    {% else %}
+                        {{ c.created_at }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% set s_lower = c.status|lower|replace(' ', '-') %}
+                    <span class="status status-{{ s_lower }}">
+                        {% if c.status == 'Pending' %}⏳ Pending{% elif c.status == 'In Progress' %}🔄 In Progress{% else %}✅ Resolved{% endif %}
+                    </span>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="empty">
+                    You have not submitted any complaints yet. Need help with plumbing, electrical, or cleaning? Click "+ New Complaint".
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

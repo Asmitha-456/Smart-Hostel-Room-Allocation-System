@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Hostel Rooms</h1>
+        <p style="color: #64748b; margin: 4px 0 0;">Manage room capacities, occupancy, and residents</p>
+    </div>
+    <div>
+        <a class="button" href="{{ url_for('add_room') }}">+ Add Room</a>
+    </div>
+</div>
+
+<div class="table-toolbar">
+    <input type="text" id="roomSearch" placeholder="🔍 Search by room number, gender, occupant name..." class="search-input">
+</div>
+
+<table id="roomsTable">
+    <thead>
+        <tr>
+            <th>Room No</th>
+            <th>Category</th>
+            <th>Total Capacity</th>
+            <th>Occupied</th>
+            <th>Available</th>
+            <th>Current Occupants</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in rooms %}
+        {% set occupied = r.occupants|length if r.occupants else 0 %}
+        {% set available = r.capacity - occupied %}
+        <tr>
+            <td><strong>Room {{ r.room_no }}</strong></td>
+            <td>
+                {% if r.gender == 'Boys' %}
+                    <span class="badge badge-boys">Boys</span>
+                {% else %}
+                    <span class="badge badge-girls">Girls</span>
+                {% endif %}
+            </td>
+            <td>{{ r.capacity }} Beds</td>
+            <td>
+                {% if occupied >= r.capacity %}
+                    <span class="badge badge-full">{{ occupied }} / {{ r.capacity }}</span>
+                {% elif occupied > 0 %}
+                    <span class="badge badge-partial">{{ occupied }} / {{ r.capacity }}</span>
+                {% else %}
+                    <span class="badge badge-empty">{{ occupied }} / {{ r.capacity }}</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if available > 0 %}
+                    <strong class="text-avail">{{ available }} Beds</strong>
+                {% else %}
+                    <strong class="text-full">{{ available }} Beds</strong>
+                {% endif %}
+            </td>
+            <td>
+                {% if r.occupant_names and r.occupant_names|length > 0 %}
+                    <div class="occupant-chips">
+                        {% for name in r.occupant_names %}
+                            <span class="occupant-chip">{{ name }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <span style="color: #94a3b8; font-style: italic;">No occupants</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if occupied == 0 %}
+                    <form method="post" action="{{ url_for('delete_room', room_id=r._id) }}" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete Room {{ r.room_no }}?');">
+                        <button type="submit" class="btn-action btn-delete" title="Delete Room">&times;</button>
+                    </form>
+                {% else %}
+                    <span style="font-size: 12px; color: #94a3b8;" title="Cannot delete occupied room">In Use</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" class="empty">No rooms created yet. Click "+ Add Room" to get started.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        setupTableSearch("roomSearch", "roomsTable");
+    });
+</script>
+{% endblock %}

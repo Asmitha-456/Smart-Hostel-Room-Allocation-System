@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Hostel Management &amp; Room Allocation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="brand-group">
+        <a href="{{ url_for('index') }}" class="brand">
+            <span class="brand-icon">🏠</span> Smart Hostel
+        </a>
+        {% if db_connected %}
+        <a href="{{ url_for('db_status_page') }}" class="status-badge-nav status-online" title="Click to view Database Diagnostics">
+            <span class="status-dot"></span>
+            MongoDB: Connected ({{ db_name }})
+        </a>
+        {% else %}
+        <a href="{{ url_for('db_status_page') }}" class="status-badge-nav status-offline" title="Click to view Database Diagnostics">
+            <span class="status-dot"></span>
+            MongoDB: Not Connected
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="navlinks">
+        {% if current_user.is_authenticated %}
+            {% if current_user.role == 'warden' %}
+                <!-- Warden Navlinks -->
+                <a href="{{ url_for('warden_dashboard') }}" class="{% if request.endpoint == 'warden_dashboard' %}active{% endif %}">Dashboard</a>
+                <a href="{{ url_for('students') }}" class="{% if request.endpoint in ['students', 'add_student'] %}active{% endif %}">Students</a>
+                <a href="{{ url_for('rooms') }}" class="{% if request.endpoint in ['rooms', 'add_room'] %}active{% endif %}">Rooms</a>
+                <a href="{{ url_for('allocate') }}" class="{% if request.endpoint == 'allocate' %}active{% endif %}">Allocation</a>
+                <a href="{{ url_for('complaints') }}" class="{% if request.endpoint in ['complaints', 'add_complaint'] %}active{% endif %}">Complaints</a>
+                <a href="{{ url_for('db_status_page') }}" class="{% if request.endpoint == 'db_status_page' %}active{% endif %}">DB Status</a>
+                
+                <div class="user-menu">
+                    <span class="user-pill user-pill-warden">🛡️ Warden</span>
+                    <a href="{{ url_for('logout') }}" class="btn-logout" title="Log out">Logout</a>
+                </div>
+            {% else %}
+                <!-- Student Navlinks -->
+                <a href="{{ url_for('student_dashboard') }}" class="{% if request.endpoint == 'student_dashboard' %}active{% endif %}">My Dashboard</a>
+                <a href="{{ url_for('student_add_complaint') }}" class="{% if request.endpoint == 'student_add_complaint' %}active{% endif %}">+ Report Issue</a>
+                <a href="{{ url_for('db_status_page') }}" class="{% if request.endpoint == 'db_status_page' %}active{% endif %}">DB Status</a>
+                
+                <div class="user-menu">
+                    <span class="user-pill user-pill-student">👨‍🎓 {{ current_user.name }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn-logout" title="Log out">Logout</a>
+                </div>
+            {% endif %}
+        {% else %}
+            <!-- Guest / Logged out Navlinks -->
+            <a href="{{ url_for('login') }}" class="{% if request.endpoint == 'login' %}active{% endif %}">Sign In</a>
+            <a href="{{ url_for('register') }}" class="{% if request.endpoint == 'register' %}active{% endif %}">Student Register</a>
+            <a href="{{ url_for('db_status_page') }}" class="{% if request.endpoint == 'db_status_page' %}active{% endif %}">DB Status</a>
+        {% endif %}
+    </div>
+</nav>
+
+<main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alerts-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <span class="alert-icon">
+                            {% if category == 'success' %}✓{% elif category == 'error' %}⚠️{% else %}ℹ️{% endif %}
+                        </span>
+                        <div class="alert-content">{{ message }}</div>
+                        <button class="alert-close" onclick="this.parentElement.remove();">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+    <div class="footer-content">
+        <p>Smart Hostel Room Allocation &amp; Complaints Management System</p>
+        <p class="footer-sub">Role-Based Student &amp; Warden Portals | Powered by Python Flask &amp; MongoDB Atlas</p>
+    </div>
+</footer>
+
+<script>
+    // Search filter helper function for tables
+    function setupTableSearch(inputId, tableId) {
+        const input = document.getElementById(inputId);
+        const table = document.getElementById(tableId);
+        if (!input || !table) return;
+
+        input.addEventListener('keyup', function() {
+            const filter = this.value.toLowerCase();
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(filter)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    }
+</script>
+
+</body>
+</html>

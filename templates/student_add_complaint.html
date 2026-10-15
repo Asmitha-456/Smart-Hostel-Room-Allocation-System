@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0;">Report a Hostel Issue</h1>
+        <a href="{{ url_for('student_dashboard') }}" style="color: #64748b; text-decoration: none; font-size: 14px;">&larr; Back to Dashboard</a>
+    </div>
+
+    <div class="info" style="margin-top: 0; margin-bottom: 20px; padding: 16px; background: #f8fafc;">
+        <div style="font-size: 14px; color: #334155;">
+            Reporting as: <strong>{{ student.name or current_user.name }}</strong> (Roll No: <code>{{ student.roll_no or current_user.roll_no }}</code>)
+            {% if student.room_no and student.room_no != 'None' and student.room_no != 'Not Allocated' %}
+                | Assigned Room: <span class="badge badge-room">Room {{ student.room_no }}</span>
+            {% else %}
+                | <span class="badge badge-unassigned">Room Not Yet Allocated</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <form method="post" action="{{ url_for('student_add_complaint') }}">
+        <label for="category">Issue Category *</label>
+        <select id="category" name="category" required autofocus>
+            <option value="">-- Select Category --</option>
+            <option value="Plumbing">🚰 Plumbing &amp; Water Leakage</option>
+            <option value="Water">💧 Drinking Water Supply</option>
+            <option value="Electrical">💡 Electrical (Lights, Fans, Sockets)</option>
+            <option value="Cleaning">🧹 Room &amp; Washroom Cleaning</option>
+            <option value="Furniture">🪑 Furniture / Bed / Cupboard Damage</option>
+            <option value="Internet / WiFi">📶 WiFi / Network Connectivity</option>
+            <option value="Other">📌 Other Maintenance Issue</option>
+        </select>
+
+        <label for="description">Detailed Description *</label>
+        <textarea id="description" name="description" rows="5" placeholder="Explain the problem clearly, including specific details like tap leakage, fan not working, or bathroom cleaning..." required></textarea>
+
+        <div style="margin-top: 25px; display: flex; gap: 10px;">
+            <button class="button button-warning" type="submit">🚨 Submit Complaint to Warden</button>
+            <a href="{{ url_for('student_dashboard') }}" class="button button-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

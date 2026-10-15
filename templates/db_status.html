@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>MongoDB Database Status</h1>
+        <p style="color: #64748b; margin: 4px 0 0;">Real-time database connectivity and health diagnostics</p>
+    </div>
+    <form method="post" action="{{ url_for('test_db_connection') }}">
+        <button type="submit" class="button">🔄 Test / Reconnect Now</button>
+    </form>
+</div>
+
+{% if db_connected %}
+<div class="db-status-banner db-banner-success">
+{% else %}
+<div class="db-status-banner db-banner-error">
+{% endif %}
+    <div class="db-status-icon">
+        {% if db_connected %}
+            <span style="font-size: 36px;">✅</span>
+        {% else %}
+            <span style="font-size: 36px;">❌</span>
+        {% endif %}
+    </div>
+    <div class="db-status-info">
+        <h2 style="margin: 0 0 6px;">
+            {% if db_connected %}
+                MongoDB Connected Successfully!
+            {% else %}
+                MongoDB Connection Failed / Not Connected
+            {% endif %}
+        </h2>
+        <p style="margin: 0; font-size: 15px; opacity: 0.95;">
+            {{ db_status_message }}
+        </p>
+        {% if db_latency %}
+            <div style="margin-top: 8px; font-size: 13px;">
+                <strong>Ping Latency:</strong> {{ db_latency }} ms | <strong>Database:</strong> {{ db_name }}
+            </div>
+        {% endif %}
+        {% if db_last_checked %}
+            <div style="font-size: 12px; margin-top: 4px; opacity: 0.85;">
+                Last checked at: {{ db_last_checked }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if not db_connected %}
+<div class="info" style="border-left: 4px solid #ef4444; background: #fff5f5; margin-top: 24px;">
+    <h3 style="color: #b91c1c; margin-top: 0;">Troubleshooting Steps to Fix MongoDB Connection:</h3>
+    <ol style="line-height: 1.8; color: #374151; padding-left: 20px;">
+        <li>
+            <strong>Check MongoDB Atlas Network Access:</strong><br>
+            Go to <a href="https://cloud.mongodb.com" target="_blank" style="color: #2563eb; font-weight: 600;">MongoDB Atlas</a> &rarr; <strong>Security</strong> &rarr; <strong>Network Access</strong> &rarr; Click <strong>"Add IP Address"</strong> &rarr; Choose <strong>"Allow Access from Anywhere" (0.0.0.0/0)</strong> and Save.
+        </li>
+        <li>
+            <strong>Check your .env Configuration:</strong><br>
+            Ensure your <code>.env</code> file in the project folder has the valid Atlas connection string:
+            <pre style="background: #1e293b; color: #f8fafc; padding: 12px; border-radius: 6px; overflow-x: auto; margin-top: 6px;">MONGO_URI="mongodb+srv://&lt;username&gt;:&lt;password&gt;@cluster0.xxxxx.mongodb.net/?retryWrites=true&amp;w=majority"
+DB_NAME=smart_hostel</pre>
+        </li>
+        <li>
+            <strong>Check Database User & Password:</strong><br>
+            Verify under <strong>Database Access</strong> in Atlas that the user exists and has <code>readWriteAnyDatabase</code> or <code>readWrite</code> privileges.
+        </li>
+        <li>
+            Once configured, click the <strong>"🔄 Test / Reconnect Now"</strong> button above to re-verify.
+        </li>
+    </ol>
+</div>
+{% endif %}
+
+<div class="cards" style="margin-top: 25px;">
+    <div class="card">
+        <h3>Students in DB</h3>
+        <strong>{{ stats.students }}</strong>
+        {% if current_user.role == 'warden' %}
+            <a href="{{ url_for('students') }}">Manage Students &rarr;</a>
+        {% else %}
+            <span style="font-size: 13px; color: #64748b;">Registered Students</span>
+        {% endif %}
+    </div>
+    <div class="card">
+        <h3>Rooms in DB</h3>
+        <strong>{{ stats.rooms }}</strong>
+        {% if current_user.role == 'warden' %}
+            <a href="{{ url_for('rooms') }}">Manage Rooms &rarr;</a>
+        {% else %}
+            <span style="font-size: 13px; color: #64748b;">Hostel Rooms</span>
+        {% endif %}
+    </div>
+    <div class="card">
+        <h3>Complaints in DB</h3>
+        <strong>{{ stats.complaints }}</strong>
+        {% if current_user.role == 'warden' %}
+            <a href="{{ url_for('complaints') }}">Manage Complaints &rarr;</a>
+        {% elif current_user.role == 'student' %}
+            <a href="{{ url_for('student_dashboard') }}">My Complaints &rarr;</a>
+        {% else %}
+            <span style="font-size: 13px; color: #64748b;">Active Issues</span>
+        {% endif %}
+    </div>
+    <div class="card">
+        <h3>Active Database</h3>
+        <strong style="font-size: 22px; word-break: break-all;">{{ db_name }}</strong>
+        <span style="font-size: 13px; color: #64748b;">Collection Cluster</span>
+    </div>
+</div>
+
+{% if current_user.role == 'warden' %}
+<div class="info" style="margin-top: 25px;">
+    <h2>Quick Setup & Demo (Warden)</h2>
+    <p>Need initial sample rooms and students to test automatic allocation?</p>
+    <form method="post" action="{{ url_for('seed_demo_data') }}" style="display: inline;">
+        {% if not db_connected %}
+            <button type="submit" class="button button-secondary" disabled title="MongoDB must be connected to seed demo data">
+                📥 Seed Sample Demo Data (Rooms & Students)
+            </button>
+        {% else %}
+            <button type="submit" class="button button-secondary">
+                📥 Seed Sample Demo Data (Rooms & Students)
+            </button>
+        {% endif %}
+    </form>
+</div>
+{% endif %}
+{% endblock %}

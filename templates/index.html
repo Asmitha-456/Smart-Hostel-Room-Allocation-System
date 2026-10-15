@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Hero Banner with Live MongoDB Status Indicator -->
+<section class="hero">
+    <div class="hero-header">
+        <div>
+            <h1>Smart Hostel Room Allocation</h1>
+            <p>Automated room allocation, student records, and hostel complaint resolution system.</p>
+        </div>
+        <div class="hero-status">
+            {% if db_connected %}
+                <div class="hero-badge badge-success">
+                    <span class="status-pulse-green"></span>
+                    <div>
+                        <strong>MongoDB: Connected Successfully</strong>
+                        <small>Cluster active ({{ db_latency }} ms)</small>
+                    </div>
+                </div>
+            {% else %}
+                <div class="hero-badge badge-danger">
+                    <span class="status-pulse-red"></span>
+                    <div>
+                        <strong>MongoDB: Connection Failed</strong>
+                        <small><a href="{{ url_for('db_status_page') }}" style="color: #ef4444; text-decoration: underline;">Fix Connection &rarr;</a></small>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Dashboard Stats Cards -->
+<div class="cards">
+    <div class="card">
+        <div class="card-icon">👨‍🎓</div>
+        <h3>Total Students</h3>
+        <strong>{{ students_count }}</strong>
+        <a href="{{ url_for('students') }}">View All Students &rarr;</a>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">🚪</div>
+        <h3>Total Rooms</h3>
+        <strong>{{ rooms_count }}</strong>
+        <a href="{{ url_for('rooms') }}">View Hostel Rooms &rarr;</a>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">🛏️</div>
+        <h3>Allocated Students</h3>
+        <strong>{{ allocated_count }}</strong>
+        <a href="{{ url_for('allocate') }}">View Allocations &rarr;</a>
+    </div>
+
+    <div class="card">
+        <div class="card-icon">📝</div>
+        <h3>Total Complaints</h3>
+        <strong>{{ complaints_count }}</strong>
+        <a href="{{ url_for('complaints') }}">View Complaints &rarr;</a>
+    </div>
+
+    <div class="card card-warning">
+        <div class="card-icon">⏳</div>
+        <h3>Pending Issues</h3>
+        <strong>{{ pending_count }}</strong>
+        <a href="{{ url_for('complaints') }}">Resolve Complaints &rarr;</a>
+    </div>
+</div>
+
+<!-- Quick Action Shortcuts -->
+<div class="quick">
+    <h2>⚡ Quick Actions</h2>
+    <div class="button-group">
+        <a class="button" href="{{ url_for('add_student') }}">+ Add Student</a>
+        <a class="button" href="{{ url_for('add_room') }}">+ Add Room</a>
+        <a class="button button-accent" href="{{ url_for('allocate') }}">⚡ Automatic Allocation</a>
+        <a class="button button-warning" href="{{ url_for('add_complaint') }}">+ Report Complaint</a>
+        <a class="button button-secondary" href="{{ url_for('db_status_page') }}">🔌 Database Status</a>
+    </div>
+</div>
+
+<!-- Workflow guide -->
+<div class="info">
+    <h2>📋 How the System Works</h2>
+    <div class="steps-grid">
+        <div class="step-card">
+            <span class="step-num">1</span>
+            <h4>Add Rooms</h4>
+            <p>Define Boys and Girls hostel rooms with total bed capacities.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-num">2</span>
+            <h4>Register Students</h4>
+            <p>Enroll students with roll number, department, year, and gender.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-num">3</span>
+            <h4>Auto Allocation</h4>
+            <p>The system intelligently matches students to available rooms matching their gender.</p>
+        </div>
+        <div class="step-card">
+            <span class="step-num">4</span>
+            <h4>Resolve Complaints</h4>
+            <p>Track maintenance requests (plumbing, electrical, water) with status tracking.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

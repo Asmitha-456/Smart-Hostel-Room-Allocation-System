@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card auth-card-wide">
+        <div class="auth-header">
+            <span class="auth-icon">📝</span>
+            <h2>Student Registration</h2>
+            <p>Enroll your hostel details and choose your room sharing preference</p>
+        </div>
+
+        <form method="post" action="{{ url_for('register') }}" class="auth-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="name">Full Name *</label>
+                    <input type="text" id="name" name="name" placeholder="e.g. Asmitha S" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="roll_no">Roll Number / Student ID *</label>
+                    <input type="text" id="roll_no" name="roll_no" placeholder="e.g. 24104015" required>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="gender">Hostel Block (Gender) *</label>
+                    <select id="gender" name="gender" required>
+                        <option value="">-- Select Block --</option>
+                        <option value="Boys">Boys (Male Hostel)</option>
+                        <option value="Girls">Girls (Female Hostel)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="preference">Room Sharing Preference *</label>
+                    <select id="preference" name="preference" required>
+                        <option value="Double Sharing">Double Sharing (2 Beds)</option>
+                        <option value="Single Room">Single Room (1 Bed)</option>
+                        <option value="Triple Sharing">Triple Sharing (3 Beds)</option>
+                        <option value="4-Sharing">4-Sharing (4 Beds)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="department">Department / Branch *</label>
+                    <input type="text" id="department" name="department" placeholder="e.g. CSE / IT / ECE" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="year">Year of Study *</label>
+                    <select id="year" name="year" required>
+                        <option value="1">1st Year</option>
+                        <option value="2">2nd Year</option>
+                        <option value="3" selected>3rd Year</option>
+                        <option value="4">4th Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Create Password *</label>
+                <input type="password" id="password" name="password" placeholder="Choose a secure password" minlength="4" required>
+                <small style="color: #64748b; font-size: 12px;">Minimum 4 characters. You will use this with your Roll Number to log in.</small>
+            </div>
+
+            <button type="submit" class="button button-block" style="margin-top: 20px;">
+                Complete Registration &rarr;
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('login', role='student') }}">Sign In with Roll Number &rarr;</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

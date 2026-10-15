@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-box">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0;">Report Hostel Complaint</h1>
+        <a href="{{ url_for('complaints') }}" style="color: #64748b; text-decoration: none; font-size: 14px;">&larr; Back to Complaints</a>
+    </div>
+
+    <form method="post" action="{{ url_for('add_complaint') }}">
+        <label for="student_id">Select Student</label>
+        <select id="student_id" name="student_id" required>
+            <option value="">-- Choose Student --</option>
+            {% for s in students %}
+                <option value="{{ s._id }}">
+                    {{ s.name }} ({{ s.roll_no }}) {% if s.room_no %}[Room {{ s.room_no }}]{% else %}[No Room]{% endif %}
+                </option>
+            {% endfor %}
+        </select>
+        {% if not students %}
+            <small style="color: #ef4444; font-size: 12px; display: block; margin-top: -3px; margin-bottom: 12px;">No students enrolled yet. Please add a student first.</small>
+        {% endif %}
+
+        <label for="category">Issue Category</label>
+        <select id="category" name="category" required>
+            <option value="">-- Select Category --</option>
+            <option value="Plumbing">🚰 Plumbing &amp; Water Leakage</option>
+            <option value="Water">💧 Drinking Water Supply</option>
+            <option value="Electrical">💡 Electrical (Lights, Fans, Sockets)</option>
+            <option value="Cleaning">🧹 Room &amp; Washroom Cleaning</option>
+            <option value="Furniture">🪑 Furniture / Bed / Cupboard</option>
+            <option value="Internet / WiFi">📶 WiFi / Network Connectivity</option>
+            <option value="Other">📌 Other Facility Issue</option>
+        </select>
+
+        <label for="description">Detailed Description of Problem</label>
+        <textarea id="description" name="description" rows="5" placeholder="Please describe the issue in detail, mentioning specific room or location details..." required></textarea>
+
+        <div style="margin-top: 25px; display: flex; gap: 10px;">
+            <button class="button" type="submit">🚨 Submit Complaint</button>
+            <a href="{{ url_for('complaints') }}" class="button button-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

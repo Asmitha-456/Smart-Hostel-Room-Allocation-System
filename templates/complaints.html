@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Hostel Maintenance &amp; Complaints</h1>
+        <p style="color: #64748b; margin: 4px 0 0;">Track, review, and resolve hostel facility complaints</p>
+    </div>
+    <div>
+        <a class="button" href="{{ url_for('add_complaint') }}">+ Report Complaint</a>
+    </div>
+</div>
+
+<div class="table-toolbar">
+    <input type="text" id="complaintSearch" placeholder="🔍 Search complaints by student, room, category, status..." class="search-input">
+</div>
+
+<table id="complaintsTable">
+    <thead>
+        <tr>
+            <th>Student</th>
+            <th>Room</th>
+            <th>Category</th>
+            <th>Issue Description</th>
+            <th>Current Status</th>
+            <th>Change Status</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for c in complaints %}
+        <tr>
+            <td>
+                <strong>{{ c.student_name }}</strong>
+                {% if c.roll_no %}<br><small style="color: #64748b;">{{ c.roll_no }}</small>{% endif %}
+            </td>
+            <td>
+                {% if c.room_no and c.room_no != 'Not Allocated' %}
+                    <span class="badge badge-room">Room {{ c.room_no }}</span>
+                {% else %}
+                    <span style="color: #94a3b8; font-size: 13px;">N/A</span>
+                {% endif %}
+            </td>
+            <td>
+                <span class="badge badge-category">{{ c.category }}</span>
+            </td>
+            <td style="max-width: 280px; word-break: break-word;">
+                {{ c.description }}
+                {% if c.created_at %}
+                    <div style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+                        Reported: {{ c.created_at.strftime('%d %b %Y, %I:%M %p') if c.created_at.strftime is defined else c.created_at }}
+                    </div>
+                {% endif %}
+            </td>
+            <td>
+                {% set s_lower = c.status|lower|replace(' ', '-') %}
+                <span class="status status-{{ s_lower }}">{{ c.status }}</span>
+            </td>
+            <td>
+                <div class="status-actions">
+                    {% if c.status != 'Pending' %}
+                        <a class="status-btn status-btn-pending" href="{{ url_for('update_complaint_status', complaint_id=c._id, status='Pending') }}">Pending</a>
+                    {% endif %}
+                    {% if c.status != 'In Progress' %}
+                        <a class="status-btn status-btn-progress" href="{{ url_for('update_complaint_status', complaint_id=c._id, status='In Progress') }}">In Progress</a>
+                    {% endif %}
+                    {% if c.status != 'Resolved' %}
+                        <a class="status-btn status-btn-resolved" href="{{ url_for('update_complaint_status', complaint_id=c._id, status='Resolved') }}">Resolve ✓</a>
+                    {% endif %}
+                </div>
+            </td>
+            <td>
+                <form method="post" action="{{ url_for('delete_complaint', complaint_id=c._id) }}" style="display:inline;" onsubmit="return confirm('Delete this complaint record?');">
+                    <button type="submit" class="btn-action btn-delete" title="Delete Complaint">&times;</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="7" class="empty">No complaints filed yet. Clean hostel records!</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        setupTableSearch("complaintSearch", "complaintsTable");
+    });
+</script>
+{% endblock %}
